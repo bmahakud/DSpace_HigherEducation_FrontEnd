@@ -21,7 +21,7 @@ export class ViewerComponent {
 
   metadataObj: any[] = []; // <-- store array directly
 
-  private readonly BASE = 'http://localhost:8080';
+  private readonly BASE = 'http://192.168.0.210:8080';
 
   constructor(
     private http: HttpClient,

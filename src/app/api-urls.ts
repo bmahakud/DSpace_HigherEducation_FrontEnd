@@ -1,6 +1,6 @@
 // API Base URLs Configuration
 export const API_URLS = {
-    DEVELOPMENT: 'http://localhost:8080/server',
+    DEVELOPMENT: 'http://192.168.0.210:8080/server',
     PRODUCTION: 'http://10.184.240.87:8080'
   } as const;
   
