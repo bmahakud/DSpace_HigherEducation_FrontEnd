@@ -1,8 +1,9 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import { APP_CONFIG, AppConfig } from 'src/config/app-config.interface';
 
 import { MetadataService } from 'src/app/services/metadata.service';
 
@@ -21,14 +22,15 @@ export class ViewerComponent {
 
   metadataObj: any[] = []; // <-- store array directly
 
-  private readonly BASE = 'http://192.168.0.210:8080';
 
   constructor(
     private http: HttpClient,
     private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
     private metadataService: MetadataService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(APP_CONFIG) private appConfig: AppConfig
   ) { }
 
   ngOnInit(): void {
@@ -55,7 +57,7 @@ export class ViewerComponent {
     // this.loading = true;
     this.error = false;
 
-    const url = `${this.BASE}/server/api/core/bitstreams/${uuid}/content`;
+    const url = `${this.appConfig.rest.baseUrl}/api/core/bitstreams/${uuid}/content`;
 
     this.http
       .get(url, {
@@ -66,10 +68,12 @@ export class ViewerComponent {
         next: (blob) => {
           const objUrl = URL.createObjectURL(blob);
           this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objUrl);
+          this.cdr.detectChanges();
           // this.loading = false;
         },
         error: (err) => {
           this.error = true;
+          this.cdr.detectChanges();
           // this.loading = false;
         },
       });

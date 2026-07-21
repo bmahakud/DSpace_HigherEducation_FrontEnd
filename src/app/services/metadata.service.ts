@@ -14,10 +14,29 @@ export class MetadataService {
   // Method to set/update metadata
   setMetadata(metadata: any[]) {
     this.metadataSubject.next(metadata);
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('viewer_metadata', JSON.stringify(metadata));
+      }
+    } catch (e) {
+      console.warn('Could not save metadata to sessionStorage', e);
+    }
   }
 
   // Method to retrieve current metadata snapshot
   getMetadata(): any[] {
-    return this.metadataSubject.getValue();
+    let meta = this.metadataSubject.getValue();
+    if ((!meta || meta.length === 0) && typeof sessionStorage !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem('viewer_metadata');
+        if (stored) {
+          meta = JSON.parse(stored);
+          this.metadataSubject.next(meta);
+        }
+      } catch (e) {
+        console.warn('Could not retrieve metadata from sessionStorage', e);
+      }
+    }
+    return meta;
   }
 }
