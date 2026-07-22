@@ -1,0 +1,42 @@
+.card {
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.card-header {
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.table th {
+  border-top: none;
+  background-color: #343a40;
+  color: #fff;
+}
+
+.badge-info {
+  background-color: #17a2b8;
+  color: white;
+  font-size: 0.9em;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.table tbody tr td {
+  vertical-align: middle !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+.border-right {
+  border-right: 1px solid #dee2e6 !important;
+}
