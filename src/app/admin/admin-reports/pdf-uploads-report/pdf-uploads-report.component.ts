@@ -117,78 +117,109 @@ export class PdfUploadsReportComponent implements OnInit {
 
     const { singleDate, fromDate, toDate } = this.filterForm.value;
 
+    // Use Z to force UTC boundary matching against DSpace UTC metadata
     const fromTime = reportType === 'single'
-      ? new Date(`${singleDate}T00:00:00`).getTime()
-      : new Date(`${fromDate}T00:00:00`).getTime();
+      ? new Date(`${singleDate}T00:00:00Z`).getTime()
+      : new Date(`${fromDate}T00:00:00Z`).getTime();
     const toTime = reportType === 'single'
-      ? new Date(`${singleDate}T23:59:59`).getTime()
-      : new Date(`${toDate}T23:59:59`).getTime();
+      ? new Date(`${singleDate}T23:59:59.999Z`).getTime()
+      : new Date(`${toDate}T23:59:59.999Z`).getTime();
 
-    // Fetch all items and filter in JS to avoid SOLR syntax & index lag issues
-    const options = new PaginatedSearchOptions({
-      query: '*:*',
-      dsoTypes: [DSpaceObjectType.ITEM],
-      pagination: {
-        id: 'report-search',
-        currentPage: 1,
-        pageSize: 1000
-      } as any
-    });
+    const rows: ReportItem[] = [];
+    let currentPage = 1;
+    let totalPages = 1;
 
-    this.searchService.search(options).pipe(
-      getFirstSucceededRemoteDataPayload()
-    ).subscribe(async (searchResult: any) => {
-      const rows: ReportItem[] = [];
-      const items = searchResult.page.map((res: SearchResult<DSpaceObject>) => res.indexableObject as Item);
+    try {
+      while (currentPage <= totalPages) {
+        // Fetch items page by page to avoid the 1000 items hard limit bug
+        const options = new PaginatedSearchOptions({
+          query: '*:*',
+          dsoTypes: [DSpaceObjectType.ITEM],
+          pagination: {
+            id: 'report-search',
+            currentPage: currentPage,
+            pageSize: 1000
+          } as any
+        });
 
-      for (const item of items) {
-        const uploadDateStr = item.firstMetadataValue('dc.date.accessioned') || item.lastModified || 'Unknown';
-        const uploadTime = new Date(uploadDateStr).getTime();
-        
-        // Filter by JS date (Item upload date)
-        if (uploadTime >= fromTime && uploadTime <= toTime) {
+        const searchResult: any = await this.searchService.search(options).pipe(
+          getFirstSucceededRemoteDataPayload()
+        ).toPromise();
+
+        if (!searchResult) break;
+
+        totalPages = searchResult.pageInfo?.totalPages || 1;
+        const items = searchResult.page.map((res: SearchResult<DSpaceObject>) => res.indexableObject as Item);
+
+        for (const item of items) {
+          const uploadDateStr = item.firstMetadataValue('dc.date.accessioned');
+          let uploadTime = 0;
+          let displayDate: any = 'Unknown';
           
-          // Find ORIGINAL bundle bitstreams
-          const bitstreamsRD = await this.bitstreamService.findAllByItemAndBundleName(item, 'ORIGINAL').pipe(
-            getFirstCompletedRemoteData()
-          ).toPromise();
+          if (uploadDateStr) {
+             uploadTime = new Date(uploadDateStr).getTime();
+             displayDate = uploadDateStr;
+          } else if (item.lastModified) {
+             uploadTime = new Date(item.lastModified).getTime();
+             displayDate = item.lastModified; 
+             if (displayDate instanceof Date) {
+                 displayDate = displayDate.toISOString();
+             }
+          }
 
-          if (bitstreamsRD.hasSucceeded && bitstreamsRD.payload) {
-            const bitstreams = bitstreamsRD.payload.page;
-            const pdfsForThisItem: ReportPdf[] = [];
+          // Skip if date is invalid (NaN) or zero
+          if (isNaN(uploadTime) || uploadTime === 0) {
+             continue;
+          }
+          
+          // Filter by JS date correctly using UTC bounds
+          if (uploadTime >= fromTime && uploadTime <= toTime) {
             
-            for (const bit of bitstreams) {
-              if (bit.name && bit.name.toLowerCase().endsWith('.pdf')) {
-                pdfsForThisItem.push({
-                  pdfName: bit.name,
-                  sizeBytes: bit.sizeBytes,
-                  sizeReadable: this.formatBytes(bit.sizeBytes)
-                });
-                this.totalPdfs++;
-                this.totalSizeBytes += bit.sizeBytes;
-              }
-            }
-            
-            if (pdfsForThisItem.length > 0) {
-              // Extract metadata
-              const fileName = item.firstMetadataValue('dc.file.name') || 'N/A';
-              const fileNumber = item.firstMetadataValue('dc.filenumber') || item.firstMetadataValue('dc.case.number') || 'N/A';
+            // Find ORIGINAL bundle bitstreams
+            const bitstreamsRD = await this.bitstreamService.findAllByItemAndBundleName(item, 'ORIGINAL').pipe(
+              getFirstCompletedRemoteData()
+            ).toPromise();
+
+            if (bitstreamsRD.hasSucceeded && bitstreamsRD.payload) {
+              const bitstreams = bitstreamsRD.payload.page;
+              const pdfsForThisItem: ReportPdf[] = [];
               
-              rows.push({
-                uploadDate: uploadDateStr,
-                fileName: fileName,
-                fileNumber: fileNumber,
-                pdfs: pdfsForThisItem
-              });
+              for (const bit of bitstreams) {
+                if (bit.name && bit.name.toLowerCase().endsWith('.pdf')) {
+                  pdfsForThisItem.push({
+                    pdfName: bit.name,
+                    sizeBytes: bit.sizeBytes,
+                    sizeReadable: this.formatBytes(bit.sizeBytes)
+                  });
+                  this.totalPdfs++;
+                  this.totalSizeBytes += bit.sizeBytes;
+                }
+              }
+              
+              if (pdfsForThisItem.length > 0) {
+                // Extract metadata
+                const fileName = item.firstMetadataValue('dc.file.name') || 'N/A';
+                const fileNumber = item.firstMetadataValue('dc.filenumber') || item.firstMetadataValue('dc.case.number') || 'N/A';
+                
+                rows.push({
+                  uploadDate: displayDate,
+                  fileName: fileName,
+                  fileNumber: fileNumber,
+                  pdfs: pdfsForThisItem
+                });
+              }
             }
           }
         }
+        currentPage++;
       }
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
 
-      this.totalSizeReadable = this.formatBytes(this.totalSizeBytes);
-      this.reportData$.next(rows);
-      this.loading$.next(false);
-    });
+    this.totalSizeReadable = this.formatBytes(this.totalSizeBytes);
+    this.reportData$.next(rows);
+    this.loading$.next(false);
   }
 
   exportCsv() {

@@ -21,10 +21,10 @@
   <!-- ── Step 2: Sub-type (shown after branch selected) ────────────────── -->
   @if (selectedBranch && subTypes.length > 0) {
   <div class="ds-si-row ds-si-animate">
-    <label class="ds-si-step-label">Sub-type</label>
+    <label class="ds-si-step-label">Section Cell Office</label>
     <select class="ds-si-select" [(ngModel)]="selectedSubType" (ngModelChange)="onSubTypeChange()"
       [disabled]="isLoadingSubTypes">
-      <option value="" disabled>— Select sub-type —</option>
+      <option value="" disabled>— Select Section Cell Office —</option>
       @for (group of groupedSubTypes; track group.group) {
       <optgroup [label]="group.group">
         @for (item of group.items; track item.code) {
@@ -64,11 +64,11 @@
     <select class="ds-si-select" [(ngModel)]="selectedSubChildSubType" (ngModelChange)="onSubChildSubTypeChange()">
       <option value="" disabled>— Select grant order —</option>
       @for (group of groupedSubChildSubTypes; track group.group) {
-        <optgroup [label]="group.group">
-          @for (item of group.items; track item.code) {
-          <option [value]="item.code">{{ item.label }}</option>
-          }
-        </optgroup>
+      <optgroup [label]="group.group">
+        @for (item of group.items; track item.code) {
+        <option [value]="item.code">{{ item.label }}</option>
+        }
+      </optgroup>
       }
     </select>
   </div>
