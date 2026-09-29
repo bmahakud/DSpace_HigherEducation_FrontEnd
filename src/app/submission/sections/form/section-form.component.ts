@@ -123,7 +123,12 @@ export class SubmissionSectionFormComponent extends SectionModelComponent {
   private readonly CASE_STATUS_CONTROLLED_FIELDS = [
     'dc_petitioner',
     'dc_respondent',
-  ];
+    'dc_case_nature',
+    'dc_case_number',
+    'dc_case_type',
+    'dc_case_district',
+    'dc_case_institution'
+    ];
 
   @ViewChild('formRef') private formRef: FormComponent;
 

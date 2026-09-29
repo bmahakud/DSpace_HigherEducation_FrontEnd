@@ -3483,7 +3483,7 @@
   "browse.comcol.by.filename": "By File Name",
 
 
-  "menu.section.browse_global": "All of Education",
+  "menu.section.browse_global": "Advance Search",
 
   "menu.section.browse_global_by_author": "By Author",
 
@@ -3508,7 +3508,7 @@
 
   "menu.section.browse_global_by_title": "By Title",
 
-  "menu.section.browse_global_communities_and_collections": "Communities & Collections",
+  "menu.section.browse_global_communities_and_collections": "Collection of higher education department",
 
   "menu.section.browse_global_geospatial_map": "By Geolocation (Map)",
 
@@ -7281,6 +7281,37 @@
   "browse.metadata.casenumber.breadcrumbs": "By Case Number",
   "browse.metadata.petitioner.breadcrumbs": "By Petitioner",
   "browse.metadata.filename": "File Name",
+
+
+
+"browse.metadata.barcode.breadcrumbs": "By Barcode",
+"browse.metadata.fileyear.breadcrumbs": "By File Year",
+"browse.metadata.casedistrict.breadcrumbs": "By Case District",
+"browse.metadata.caseinstitution.breadcrumbs": "By Case Institution",
+"browse.metadata.branch.breadcrumbs": "By Branch",
+
+"menu.section.browse_global_by_barcode": "By Barcode",
+"menu.section.browse_global_by_fileyear": "By File Year",
+"menu.section.browse_global_by_casedistrict": "By Case District",
+"menu.section.browse_global_by_caseInstitution": "By Case Institution",
+"menu.section.browse_global_by_branch": "By Branch",
+
+
+
+
+"browse.comcol.by.barcode": "By Barcode",
+"browse.comcol.by.filenumber": "By File Number",
+"browse.comcol.by.filename": "By File Name",
+"browse.comcol.by.fileyear": "By File Year",
+"browse.comcol.by.casenumber": "By Case Number",
+"browse.comcol.by.petitioner": "By Petitioner",
+"browse.comcol.by.casedistrict": "By Case District",
+"browse.comcol.by.caseInstitution": "By Case Institution",
+"browse.comcol.by.branch": "By Branch",
+
+
+
+
 
   "item.page.field.dc.description.provenance": "Submission Description",
   "item.page.filesection.view": "View PDF",

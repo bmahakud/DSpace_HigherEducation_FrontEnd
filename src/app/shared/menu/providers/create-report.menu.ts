@@ -67,6 +67,16 @@ export class CreateReportMenuProvider extends AbstractExpandableMenuProvider {
             } as LinkMenuItemModel,
             icon: 'user-check',
           },
+          /* PDF Uploads Report */
+          {
+            visible: isSiteAdmin, // Always show for admins
+            model: {
+              type: MenuItemType.LINK,
+              text: 'PDF Uploads',
+              link: '/admin/reports/pdf-uploads',
+            } as LinkMenuItemModel,
+            icon: 'file-pdf',
+          },
         ];
       }));
   }
@@ -81,7 +91,7 @@ export class CreateReportMenuProvider extends AbstractExpandableMenuProvider {
     ]).pipe(
       map(([reportEnabled, isSiteAdmin]: [boolean, boolean]) => {
         return {
-          visible: isSiteAdmin && reportEnabled,
+          visible: isSiteAdmin, // Always show the Reports menu container if admin
           model: {
             type: MenuItemType.TEXT,
             text: 'menu.section.reports',

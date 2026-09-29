@@ -93,11 +93,12 @@ export class FullItemPageComponent extends ItemPageComponent implements OnInit, 
   subs = [];
 
  private keyToLabel: Record<string, string> = {
-   'dc.barcode': 'Barcode',
+  
+     'dc.barcode': 'Barcode',
    'dc.file.name': 'File Name',
    'dc.filenumber': 'File Number',
    'dc.case.status': 'Case Status',
-   'dc.case,nature': 'Case Nature',
+   'dc.case.type': 'Case Type',
   'dc.file.year': 'File Year',
   'dc.case.number': 'Case Number',
   'dc.case.nature': 'Case Nature',
@@ -108,6 +109,7 @@ export class FullItemPageComponent extends ItemPageComponent implements OnInit, 
   'dc.case.institution': 'Case Institution',
   'dc.comment': 'Description',
   'dc.branch': 'Branch',
+  'dc.institution': 'Institution',
 };
 
   private sortOrder = [
@@ -120,6 +122,7 @@ export class FullItemPageComponent extends ItemPageComponent implements OnInit, 
  'dc.case.status',
  'dc.case.nature',
   'dc.case.number',
+   'dc.case.type',
   'dc.subject.matter',
   'dc.comment',
   'dc.petitioner',

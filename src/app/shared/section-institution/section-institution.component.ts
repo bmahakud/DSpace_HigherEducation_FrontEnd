@@ -230,7 +230,7 @@ export class SectionInstitutionComponent implements OnInit, OnDestroy {
 
     this.showInstitutionDropdown = this.needsInstitutionDropdown();
     if (this.showInstitutionDropdown) {
-      this.loadInstitutions(); 
+      this.loadInstitutions();
     }
 
     this.emitValue();
@@ -244,7 +244,7 @@ export class SectionInstitutionComponent implements OnInit, OnDestroy {
 
     this.showInstitutionDropdown = this.needsInstitutionDropdown();
     if (this.showInstitutionDropdown) {
-      this.loadInstitutions(); 
+      this.loadInstitutions();
     }
 
     this.emitValue();
@@ -409,7 +409,7 @@ export class SectionInstitutionComponent implements OnInit, OnDestroy {
     const parts = [branch.label, subType.label];
     if (childSubType) parts.push(childSubType.label);
     if (subChildSubType) parts.push(subChildSubType.label);
-    
+
     const stored = [branch.code, deepestSubType.code];
 
     if (institution) {
@@ -453,10 +453,10 @@ export class SectionInstitutionComponent implements OnInit, OnDestroy {
   needsInstitutionDropdown(): boolean {
     const type = this.selectedSubChildSubType || this.selectedChildSubType || this.selectedSubType;
     if (!type) return false;
-    
+
     // According to the flowchart and business rules, only these specific items have institution lists
     const hasInstitutions = ['GC', 'NGC', 'NGC_488', 'NGC_662', 'SC', 'PVT', 'SPU', 'PU'];
-    
+
     // Check exact matches or dynamically generated RDE suffix matches
     return hasInstitutions.some(code => type === code || type.endsWith('_' + code));
   }

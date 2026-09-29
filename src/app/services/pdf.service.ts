@@ -8,7 +8,7 @@ import { catchError, map } from 'rxjs/operators';
 })
 export class PdfService {
 
-  private baseUrl = 'http://localhost:8080/server/api/core/bitstreams';
+  private baseUrl = 'http://192.168.0.210:8080/server/api/core/bitstreams';
 
   constructor(private http: HttpClient) { }
 

@@ -1,0 +1,131 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="fas fa-file-pdf text-danger mr-2"></i> PDF Uploads Report
+    </h2>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light font-weight-bold">
+      <i class="fas fa-filter mr-2"></i> Date Filter
+    </div>
+    <div class="card-body">
+      <form [formGroup]="filterForm" (ngSubmit)="generateReport()" class="row align-items-end">
+        <div class="col-12 mb-3">
+          <label class="form-label font-weight-bold">Filter Type</label>
+          <div class="d-flex flex-wrap gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" id="specificDate" value="single" formControlName="reportType">
+              <label class="form-check-label" for="specificDate">Specific Date</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" id="customRange" value="range" formControlName="reportType">
+              <label class="form-check-label" for="customRange">Custom Date Range</label>
+            </div>
+          </div>
+          <small class="text-muted">Choose one date or a From Date – To Date range.</small>
+        </div>
+
+        <div class="col-md-4 mb-3 mb-md-0" *ngIf="filterForm.get('reportType')?.value === 'single'">
+          <label for="singleDate" class="form-label font-weight-bold">Select Date</label>
+          <input type="date" id="singleDate" class="form-control" formControlName="singleDate">
+        </div>
+
+        <ng-container *ngIf="filterForm.get('reportType')?.value === 'range'">
+          <div class="col-md-4 mb-3 mb-md-0">
+            <label for="fromDate" class="form-label font-weight-bold">From Date</label>
+            <input type="date" id="fromDate" class="form-control" formControlName="fromDate">
+          </div>
+          <div class="col-md-4 mb-3 mb-md-0">
+            <label for="toDate" class="form-label font-weight-bold">To Date</label>
+            <input type="date" id="toDate" class="form-control" formControlName="toDate">
+          </div>
+        </ng-container>
+
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary w-100 shadow-sm" [disabled]="(loading$ | async) || !isDateSelectionValid()">
+            <i class="fas fa-sync-alt mr-1" [class.fa-spin]="loading$ | async"></i>
+            {{ (loading$ | async) ? 'Generating...' : 'Generate Report' }}
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="validationMessage" class="alert alert-warning mt-3 mb-0 py-2">
+        <i class="fas fa-exclamation-triangle mr-2"></i>{{ validationMessage }}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading$ | async" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Fetching and analyzing PDFs...</p>
+  </div>
+
+  <ng-container *ngIf="(loading$ | async) === false && (reportData$ | async) as rows">
+    <div *ngIf="rows.length > 0" class="card shadow-sm mb-4">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span class="font-weight-bold"><i class="fas fa-list mr-2"></i> Report Details</span>
+        <div>
+          <button class="btn btn-sm btn-danger shadow-sm" style="margin-right: 10px;" (click)="exportPdf()">
+            <i class="fas fa-file-pdf mr-1"></i> Export to PDF
+          </button>
+          <button class="btn btn-sm btn-success shadow-sm" (click)="exportCsv()">
+            <i class="fas fa-file-excel mr-1"></i> Export to Excel
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive" id="report-table-container">
+        <table class="table table-hover table-striped mb-0">
+          <thead style="background-color: #f8f9fa !important; border-bottom: 2px solid #dee2e6;">
+            <tr>
+              <th scope="col" style="color: #212529 !important; font-weight: 600;">Upload Date</th>
+              <th scope="col" style="color: #212529 !important; font-weight: 600;">File Name</th>
+              <th scope="col" style="color: #212529 !important; font-weight: 600;">File Number</th>
+              <th scope="col" style="color: #212529 !important; font-weight: 600;">PDF File Name</th>
+              <th scope="col" style="color: #212529 !important; font-weight: 600;">File Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let item of rows">
+              <tr *ngFor="let pdf of item.pdfs; let i = index">
+                <td *ngIf="i === 0" [attr.rowspan]="item.pdfs.length"
+                  class="align-middle border-right border-bottom font-weight-bold">{{ item.uploadDate | date:'medium' }}
+                </td>
+                <td *ngIf="i === 0" [attr.rowspan]="item.pdfs.length"
+                  class="align-middle border-right border-bottom font-weight-bold">{{ item.fileName }}</td>
+                <td *ngIf="i === 0" [attr.rowspan]="item.pdfs.length"
+                  class="align-middle border-right border-bottom font-weight-bold">{{ item.fileNumber }}</td>
+
+                <td class="border-bottom">
+                  <i class="fas fa-file-pdf text-danger mr-1"></i>
+                  {{ pdf.pdfName }}
+                </td>
+                <td class="border-bottom"><span class="badge badge-info px-2 py-1">{{ pdf.sizeReadable }}</span></td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-footer bg-white border-top-0 pt-4 pb-4">
+        <div class="row text-center">
+          <div class="col-md-6 border-right">
+            <h5 class="text-muted mb-1">Total PDFs Uploaded</h5>
+            <h3 class="mb-0 text-primary font-weight-bold">{{ totalPdfs }}</h3>
+          </div>
+          <div class="col-md-6">
+            <h5 class="text-muted mb-1">Total Storage Used</h5>
+            <h3 class="mb-0 text-primary font-weight-bold">{{ totalSizeReadable }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="rows.length === 0 && hasSearched" class="alert alert-info shadow-sm">
+      <i class="fas fa-info-circle mr-2"></i> No PDF uploads found for the selected date range.
+    </div>
+  </ng-container>
+</div>

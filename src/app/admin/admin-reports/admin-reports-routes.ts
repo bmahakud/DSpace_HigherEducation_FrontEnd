@@ -3,6 +3,7 @@ import { Route } from '@angular/router';
 import { i18nBreadcrumbResolver } from '../../core/breadcrumbs/i18n-breadcrumb.resolver';
 import { FilteredCollectionsComponent } from './filtered-collections/filtered-collections.component';
 import { FilteredItemsComponent } from './filtered-items/filtered-items.component';
+import { PdfUploadsReportComponent } from './pdf-uploads-report/pdf-uploads-report.component';
 
 export const ROUTES: Route[] = [
   {
@@ -24,6 +25,17 @@ export const ROUTES: Route[] = [
       {
         path: '',
         component: FilteredItemsComponent,
+      },
+    ],
+  },
+  {
+    path: 'pdf-uploads',
+    resolve: { breadcrumb: i18nBreadcrumbResolver },
+    data: { title: 'PDF Uploads Report', breadcrumbKey: 'admin.reports.pdf-uploads' },
+    children: [
+      {
+        path: '',
+        component: PdfUploadsReportComponent,
       },
     ],
   },
